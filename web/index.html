@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <head>
+        <title>USB Camera Stream</title>
+    </head>
+    <body>
+        <h1>USB Camera Stream</h1>
+        <img id="camera-feed" style="max-width: 100%" />
+
+        <script>
+            const ws = new WebSocket("ws://127.0.0.1:8082");
+            const img = document.getElementById("camera-feed");
+
+            ws.binaryType = "arraybuffer";
+
+            ws.onopen = () => {
+                console.log("Connected to camera stream");
+            };
+
+            ws.onmessage = (event) => {
+                // Convert binary data to blob and display
+                const blob = new Blob([event.data], { type: "image/jpeg" });
+                const url = URL.createObjectURL(blob);
+
+                if (img.src) {
+                    URL.revokeObjectURL(img.src);
+                }
+
+                img.src = url;
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
+
+            ws.onclose = () => {
+                console.log("Disconnected from camera stream");
+            };
+        </script>
+    </body>
+</html>
